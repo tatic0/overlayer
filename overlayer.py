@@ -19,6 +19,7 @@ def iter_previous_current(points):
             yield previous, current
         previous = current
 
+files = {}
 counter = 1
 for track in gpx.tracks:
     for segment in track.segments:
@@ -41,5 +42,15 @@ for track in gpx.tracks:
                         img.format = 'jpeg'
                         # do stuff here
                         img.save(filename=str(counter) + ".jpg")
+                        print("Frame: {}, lenght: {}s".format(counter, (endepochtime-startepochtime)))
+                        files.update({str(counter) + ".jpg": str(endepochtime-startepochtime)})
+                        ff=FFmpeg(inputs={str(counter) + ".jpg": "-loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t "+str(int(endepochtime-startepochtime))})
+                        print(ff.cmd)
+                        ff.run()
+
             counter +=1
-            
+#print(files)
+#ff = FFmpeg(
+#    inputs=files,
+#    outputs={'data.mp4': None}
+#)
