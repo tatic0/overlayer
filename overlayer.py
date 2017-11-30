@@ -5,7 +5,7 @@ import os
 import time
 import datetime
 
-gpx_file = open(os.path.expanduser('~\Downloads\\') + "Morning_Ride.gpx", 'r')
+gpx_file = open(os.path.expanduser('~/Downloads/') + "Morning_Ride.gpx", 'r')
 gpx = gpxpy.parse(gpx_file)
 
 def iter_previous_current(points):
