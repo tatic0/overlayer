@@ -8,6 +8,7 @@ from wand.image import Image
 from wand.color import Color
 from wand.drawing import Drawing
 from ffmpy3 import FFmpeg
+from collections import OrderedDict
 
 gpx_file = open(os.path.expanduser('~/Downloads/') + "Morning_Ride.gpx", 'r')
 gpx = gpxpy.parse(gpx_file)
@@ -19,7 +20,10 @@ def iter_previous_current(points):
             yield previous, current
         previous = current
 
-files = {}
+catfile = open('catfile.txt', 'w')
+
+files = OrderedDict()
+filesbyname = ""
 counter = 1
 for track in gpx.tracks:
     for segment in track.segments:
@@ -43,14 +47,20 @@ for track in gpx.tracks:
                         # do stuff here
                         img.save(filename=str(counter) + ".jpg")
                         print("Frame: {}, lenght: {}s".format(counter, (endepochtime-startepochtime)))
-                        files.update({str(counter) + ".jpg": str(endepochtime-startepochtime)})
-                        ff=FFmpeg(inputs={str(counter) + ".jpg": "-loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t "+str(int(endepochtime-startepochtime))})
+                        files.update({str(counter) + ".jpg" : None})
+                        catfile.write("file '" + str(counter) + ".jpg'\n")
+                        #catfile.write("duration {}\n".format(str(int(endepochtime-startepochtime))))
+                        ff=FFmpeg(inputs={str(counter) + ".jpg": "-y -loglevel quiet -loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t " + str(int(endepochtime-startepochtime))})
                         print(ff.cmd)
                         ff.run()
 
             counter +=1
 #print(files)
-#ff = FFmpeg(
-#    inputs=files,
-#    outputs={'data.mp4': None}
-#)
+catfile.close()
+
+ffcat = FFmpeg(
+    inputs={'catfile.txt': '-y -f concat -safe 0'},
+    outputs={'final.mp4':'-c copy'}
+)
+print(ffcat.cmd)
+#ffcat.run()
