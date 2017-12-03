@@ -108,3 +108,5 @@ ENV/
 
 # project related
 catfile.txt
+*.fit
+*.gpx

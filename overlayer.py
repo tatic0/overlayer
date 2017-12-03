@@ -1,8 +1,9 @@
+import sys
+import os
+import time
 import gpxpy
 import gpxpy.gpx
 import gpxpy.geo
-import os
-import time
 import datetime
 from wand.image import Image
 from wand.color import Color
@@ -10,8 +11,7 @@ from wand.drawing import Drawing
 from ffmpy3 import FFmpeg
 from collections import OrderedDict
 
-gpx_file = open(os.path.expanduser('~/Downloads/') + "Morning_Ride.gpx", 'r')
-gpx = gpxpy.parse(gpx_file)
+
 
 def iter_previous_current(points):
     previous = None
@@ -20,23 +20,28 @@ def iter_previous_current(points):
             yield previous, current
         previous = current
 
-catfile = open('catfile.txt', 'w')
+#gpx_file = open(os.path.expanduser('~/Downloads/') + "Morning_Ride.gpx", 'r')
+with open(os.path.expanduser(sys.argv[1])) as gpx_file:
+    gpx = gpxpy.parse(gpx_file)
 
-files = OrderedDict()
-filesbyname = ""
-counter = 1
-for track in gpx.tracks:
-    for segment in track.segments:
-        print("Total points: {}".format(len(segment.points)))
-        for startpoint, endpoint in iter_previous_current(segment.points):
-            startepochtime = time.mktime(time.strptime(str(startpoint.time),"%Y-%m-%d %H:%M:%S"))
-            endepochtime = time.mktime(time.strptime(str(endpoint.time),"%Y-%m-%d %H:%M:%S"))
-## Point at (49.855611,2.396663, 2017-11-26 07:50:36)
-            distance = gpxpy.geo.haversine_distance(startpoint.latitude, startpoint.longitude,endpoint.latitude, endpoint.longitude)
-            speed = 3.6*(distance/(endepochtime-startepochtime))
-            print('point {}: time={}s, distance={}m, speed={}Km/h'.format(counter, int(endepochtime-startepochtime), distance, int(speed)))
-            #filename = str(counter) + ".jpg"
-            with Image(width=200, height=150, background=Color('transparent')) as img:
+
+    catfile = open('catfile.txt', 'w')
+
+    files = OrderedDict()
+    filesbyname = ""
+    counter = 1
+    for track in gpx.tracks:
+        for segment in track.segments:
+            print("Total points: {}".format(len(segment.points)))
+            for startpoint, endpoint in iter_previous_current(segment.points):
+                startepochtime = time.mktime(time.strptime(str(startpoint.time),"%Y-%m-%d %H:%M:%S"))
+                endepochtime = time.mktime(time.strptime(str(endpoint.time),"%Y-%m-%d %H:%M:%S"))
+    ## Point at (49.855611,2.396663, 2017-11-26 07:50:36)
+                distance = gpxpy.geo.haversine_distance(startpoint.latitude, startpoint.longitude,endpoint.latitude, endpoint.longitude)
+                speed = 3.6*(distance/(endepochtime-startepochtime))
+                print('point {}: time={}s, distance={}m, speed={}Km/h'.format(counter, int(endepochtime-startepochtime), distance, int(speed)))
+                #filename = str(counter) + ".jpg"
+                with Image(width=200, height=150, background=Color('transparent')) as img:
                     with Drawing() as banner:
                         #banner.fill_color = Color('li')
                         banner.stroke_color = Color('white')
@@ -54,13 +59,13 @@ for track in gpx.tracks:
                         print(ff.cmd)
                         ff.run()
 
-            counter +=1
-#print(files)
-catfile.close()
+                counter +=1
+    #print(files)
+    catfile.close()
 
-ffcat = FFmpeg(
-    inputs={'catfile.txt': '-y -f concat -safe 0'},
-    outputs={'final.mp4':'-c copy'}
-)
-print(ffcat.cmd)
-ffcat.run()
+    ffcat = FFmpeg(
+        inputs={'catfile.txt': '-y -f concat -safe 0'},
+        outputs={'final.mp4':'-c copy'}
+    )
+    print(ffcat.cmd)
+    ffcat.run()
