@@ -99,3 +99,12 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# media files
+*.mp4
+*.MP4
+*.m4v
+*.jpg
+
+# project related
+catfile.txt

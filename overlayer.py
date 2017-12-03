@@ -48,7 +48,7 @@ for track in gpx.tracks:
                         img.save(filename=str(counter) + ".jpg")
                         print("Frame: {}, lenght: {}s".format(counter, (endepochtime-startepochtime)))
                         files.update({str(counter) + ".jpg" : None})
-                        catfile.write("file '" + str(counter) + ".jpg'\n")
+                        catfile.write("file '" + str(counter) + ".mp4'\n")
                         #catfile.write("duration {}\n".format(str(int(endepochtime-startepochtime))))
                         ff=FFmpeg(inputs={str(counter) + ".jpg": "-y -loglevel quiet -loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t " + str(int(endepochtime-startepochtime))})
                         print(ff.cmd)
@@ -63,4 +63,4 @@ ffcat = FFmpeg(
     outputs={'final.mp4':'-c copy'}
 )
 print(ffcat.cmd)
-#ffcat.run()
+ffcat.run()
