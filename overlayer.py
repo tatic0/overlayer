@@ -48,14 +48,15 @@ with open(os.path.expanduser(sys.argv[1])) as gpx_file:
                         banner.font_size = 40
                         banner.text(x=25, y=75, body=str(int(speed)) + "Km/h")
                         banner(img)
-                        img.format = 'jpeg'
+                        img.format = 'png'
+                        img.alpha = True
                         # do stuff here
-                        img.save(filename=str(counter) + ".jpg")
+                        img.save(filename=str(counter) + ".png")
                         print("Frame: {}, lenght: {}s".format(counter, (endepochtime-startepochtime)))
-                        files.update({str(counter) + ".jpg" : None})
+                        files.update({str(counter) + ".png" : None})
                         catfile.write("file '" + str(counter) + ".mp4'\n")
                         #catfile.write("duration {}\n".format(str(int(endepochtime-startepochtime))))
-                        ff=FFmpeg(inputs={str(counter) + ".jpg": "-y -loglevel quiet -loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t " + str(int(endepochtime-startepochtime))})
+                        ff=FFmpeg(inputs={str(counter) + ".png": "-y -loglevel quiet -loop 1 -r 30"}, outputs={str(counter) + ".mp4":"-c:v libx264 -vf fps=30 -pix_fmt yuv420p -t " + str(int(endepochtime-startepochtime))})
                         print(ff.cmd)
                         ff.run()
 
